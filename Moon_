@@ -1,52 +1,93 @@
-repeat wait() until game:IsLoaded()
-repeat wait() until game.Players.LocalPlayer.Character
-repeat wait() until game:GetService("Players").LocalPlayer.PlayerGui.Main:FindFirstChild("ChooseTeam") == nil
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer.Character
+repeat task.wait() until game.CreatorId == 4372130
 
-local plr = game.Players.LocalPlayer
-
-function is_land_hook(uRl)
+function webhooks(uRl)
+    local RealTRimeF
+    local times_game = tonumber(game:GetService("Lighting").TimeOfDay:split(":")[1])
+    if times_game >= 18 or (times_game >= 0 and times_game <= 5) then
+        local TimeMain = tonumber(game:GetService("Lighting").TimeOfDay:split(":")[1])
+        if (TimeMain >= 0 and TimeMain <= 5) then
+            RealTRimeF = 5 - TimeMain
+        elseif TimeMain >= 18 then
+            RealTRimeF = TimeMain - 30
+        end
+        if RealTRimeF < 0 then
+            RealTRimeF = RealTRimeF * -1
+        end
+    end
+    if RealTRimeF == nil then
+        moon_time = '-'
+    else
+        moon_time = RealTRimeF..' Minute'
+    end
     local Script_Teleport = 'game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport","'..game.JobId..'")'
-    local playerval = #game.Players:GetPlayers()
-    local time_of_server = tostring(game:GetService("Lighting").TimeOfDay)
-    local Data_Payload = 
-    {
-        ["data"] = {
-            ['jobId'] = game.JobId,
-            ['players'] = playerval,  
-            ['gametime'] = time_of_server,  
-        }
+    local GetVaPl = #game.Players:GetPlayers().."/12"
+    local currentTime = os.time()
+    local Data_Payload = {
+        ["embeds"] = {
+           {
+                ['title'] = "🌙 Full Moon | Masterp Services",
+                ['color'] = tonumber(0xffffff),
+                ['fields'] = {
+                    {
+                        ['name'] = "Players",
+                        ['value'] = '```yaml\n✨ '..tostring(GetVaPl)..'```',
+                        ['inline'] = true
+                    },
+                    {
+                        ['name'] = "Moon phase",
+                        ['value'] = '```yaml\n🌓 '..tostring(game:GetService("Lighting"):GetAttribute("MoonPhase"))..'/5```',
+                        ['inline'] = true
+                    },
+                    {
+                        ['name'] = "End around",
+                        ['value'] = '```yaml\n⌛ '..tostring(moon_time)..'```',
+                        ['inline'] = true
+                    },
+                    {
+                        ['name'] = "Teleport script",
+                        ['value'] = '```lua\n'..Script_Teleport..'```',
+                        ['inline'] = false
+                    },
+               },
+               ['thumbnail'] = {
+                    ['url'] = "https://cdn.discordapp.com/attachments/965087162330648626/1216359581178134588/Moon_rotating_full_220px.gif?ex=66001a23&is=65eda523&hm=2f2b925386989f494613c35004fba1d62d8663479c7a65adb6086488cdf253bf&"
+               },
+               ["footer"] = {
+                    ['text'] = "Masterp Services • "..os.date("%H:%M:%S"),
+                    ['icon_url'] = "https://media.discordapp.net/attachments/965087162330648626/1214484753948868608/6327f56a3cf94fd5a01d47897a1f5d86.png?ex=65f94811&is=65e6d311&hm=7e6a3cab447897ca1c6d48f88058f3eba49174f5ea4c0a74bcd065f8578802f2&=&format=webp&quality=lossless&width=700&height=700"
+            }, 
+           }
+       }
     }
-
+    
     local newdata = game:GetService("HttpService"):JSONEncode(Data_Payload)
+    
     local headers = {
-        ["content-type"] = "application/json"
+       ["content-type"] = "application/json"
     }
     local request = http_request or request or HttpPost or syn.request
-    local callback = request({
-        Url = tostring(uRl), 
-        Body = newdata, 
-        Method = "POST", 
-        Headers = headers
-    })
+    local web_req = {Url = tostring(uRl), Body = newdata, Method = "POST", Headers = headers}
+    request(web_req)
 end
 
-local found;
+local Sent
 task.spawn(function()
-    while true do
+    while true do task.wait()
         pcall(function()
-            if game.PlaceId == 7449423635 then 
-                Mirage_Land = game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Mirage Island")
-                if Mirage_Land ~= nil then
-                    if not found then
-                        print("Masterp Is Everything For you | Mirage IsLand [ Last update 18 April ]")
-                        is_land_hook("http://49.231.43.165:2124/api/mirage")
-                        found = true
-                    end
-                else
-                    found = false
+            local Moon_check = game:GetService("Lighting"):GetAttribute("MoonPhase")
+            if Moon_check == 5 then
+                if not Sent then
+                    print("Masterp Is Everything For you | Moon [ Last update 18 April ] ")
+                    webhooks("https://discord.com/api/webhooks/1230221968071065660/dc6ZmPDUO9pFvhKNHcAiyI9fznRpvyCUHx_IHhNOmgV_1d0dWsHHW9-JdixkEkVlYejC")
+                    Sent = true  
                 end
+            else
+                Sent = false
             end
         end)
-        task.wait(1)
     end
+    wait(2.5)
 end)
+print("Standby Webhook full-moon!")
